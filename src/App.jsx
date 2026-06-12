@@ -133,7 +133,7 @@ function App() {
     const lines = text.split('\n').filter((l) => l.length > 0);
     if (!lines.length) return;
 
-    const fontSize = 10;
+    const fontSize = 32;
     const charW = getCharWidth(fontSize);
     const charH = fontSize * 1.2;
     const cols = lines[0].length;
@@ -167,7 +167,6 @@ function App() {
   }, [text, colors, colorMode]);
 
   const hasContent = !!(uploadedImage || cameraActive);
-
   const lines = text.split('\n');
   const trueColorHtml = colorMode === 'truecolor' && hasContent
     ? renderTrueColorHtml(lines, colors)
@@ -199,7 +198,7 @@ function App() {
 | | | | | | |\\___ \\| | | |  _|  
 | |_| | |_| | ___) | |_| | |___ 
  \\___/ \\___/ |____/ \\___/|_____|
-                                 
+                                
     [ Upload Image ]
    [ Enable Camera ]
 `}
@@ -252,8 +251,8 @@ function App() {
             <input
               type="range"
               className="slider"
-              min={50}
-              max={250}
+              min={80}
+              max={350}
               value={resolution}
               onChange={(e) => setResolution(Number(e.target.value))}
             />
