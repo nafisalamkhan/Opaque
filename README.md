@@ -2,7 +2,6 @@
 
 A fully client-side web app that converts images and live camera feeds into real-time ASCII art with retro terminal aesthetics.
 
-**[opaque.surge.sh](https://opaque.surge.sh)** (deploy example)
 
 ## Features
 
@@ -23,17 +22,3 @@ A fully client-side web app that converts images and live camera feeds into real
 - **VT323** — monospace retro terminal font from Google Fonts
 
 No backend. 100% client-side.
-
-## Getting Started
-
-```bash
-npm install
-npm run dev
-```
-
-Build for production:
-
-```bash
-npm run build
-npm run preview
-```
