@@ -2,6 +2,21 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 const DENSITY = 'Ñ@#W$9876543210?!abc;:+=-,._ ';
 
+function measureCharAspect() {
+  try {
+    const c = document.createElement('canvas');
+    const ctx = c.getContext('2d');
+    ctx.font = '10px VT323, "Courier New", monospace';
+    const w = ctx.measureText('@').width;
+    const h = 12;
+    return w / h;
+  } catch {
+    return 0.5;
+  }
+}
+
+const CHAR_ASPECT = measureCharAspect();
+
 function clamp(v, min, max) {
   return Math.min(max, Math.max(min, v));
 }
@@ -42,7 +57,7 @@ export function useAsciiRender({
     if (!srcW || !srcH) return;
 
     const cols = width;
-    const rows = Math.floor(cols * (srcH / srcW) * 0.5);
+    const rows = Math.floor(cols * (srcH / srcW) * CHAR_ASPECT);
 
     canvas.width = cols;
     canvas.height = rows;
