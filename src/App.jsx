@@ -1,11 +1,11 @@
 import { useState, useRef, useCallback } from 'react';
-import { useAsciiRender } from './hooks/useAsciiRender';
+import { useAsciiRender, getCharWidth } from './hooks/useAsciiRender';
 import './App.css';
 
 const MODES = [
-  { key: 'classic', label: 'Classic Green' },
-  { key: 'monochrome', label: 'Monochrome' },
-  { key: 'truecolor', label: 'True Color' },
+  { key: 'classic', label: 'Green' },
+  { key: 'monochrome', label: 'Mono' },
+  { key: 'truecolor', label: 'RGB' },
 ];
 
 function renderTrueColorHtml(lines, colors) {
@@ -134,7 +134,7 @@ function App() {
     if (!lines.length) return;
 
     const fontSize = 10;
-    const charW = fontSize * 0.6;
+    const charW = getCharWidth(fontSize);
     const charH = fontSize * 1.2;
     const cols = lines[0].length;
     const rows = lines.length;

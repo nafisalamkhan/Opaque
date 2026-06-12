@@ -2,20 +2,31 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 const DENSITY = 'Ñ@#W$9876543210?!abc;:+=-,._ ';
 
-function measureCharAspect() {
+let charAspect = null;
+
+function getCharAspect() {
+  if (charAspect !== null) return charAspect;
   try {
     const c = document.createElement('canvas');
     const ctx = c.getContext('2d');
     ctx.font = '10px VT323, "Courier New", monospace';
-    const w = ctx.measureText('@').width;
-    const h = 12;
-    return w / h;
+    charAspect = ctx.measureText('@').width / 12;
   } catch {
-    return 0.5;
+    charAspect = 0.5;
   }
+  return charAspect;
 }
 
-const CHAR_ASPECT = measureCharAspect();
+export function getCharWidth(fontSize) {
+  try {
+    const c = document.createElement('canvas');
+    const ctx = c.getContext('2d');
+    ctx.font = `${fontSize}px VT323, "Courier New", monospace`;
+    return ctx.measureText('@').width;
+  } catch {
+    return fontSize * 0.6;
+  }
+}
 
 function clamp(v, min, max) {
   return Math.min(max, Math.max(min, v));
@@ -57,7 +68,7 @@ export function useAsciiRender({
     if (!srcW || !srcH) return;
 
     const cols = width;
-    const rows = Math.floor(cols * (srcH / srcW) * CHAR_ASPECT);
+    const rows = Math.floor(cols * (srcH / srcW) * getCharAspect());
 
     canvas.width = cols;
     canvas.height = rows;
