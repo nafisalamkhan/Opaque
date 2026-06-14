@@ -262,8 +262,8 @@
 /* ─── ASCII Output ─── */
 .ascii-output {
   font-family: 'Courier New', Consolas, monospace;
-  font-size: 11px;
-  line-height: 1.15;
+  font-size: 14px;
+  line-height: 1.2;
   white-space: pre;
   margin: 0;
   padding: 8px;
@@ -325,6 +325,81 @@
   padding: 6px 16px;
   border-radius: 12px;
   border: 1px solid rgba(255, 107, 107, 0.2);
+}
+
+/* ─── Toast ─── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.88);
+  color: #EAEAEA;
+  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 200;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* ─── Copy Toast ─── */
+.copy-toast {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: none;
+  background: rgba(20, 20, 20, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  color: #FFFFFF;
+}
+
+.copy-toast svg {
+  stroke: #39FF14;
+  flex-shrink: 0;
+}
+
+.copy-toast.enter {
+  animation: copyToastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.copy-toast.exit {
+  animation: copyToastOut 0.3s ease-in forwards;
+}
+
+@keyframes copyToastIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes copyToastOut {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(10px); opacity: 0; }
+}
+
+.theme-light .copy-toast {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #1C1C1E;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+.theme-light .copy-toast svg {
+  stroke: #1C1C1E;
 }
 
 /* ─── Sidebar ─── */

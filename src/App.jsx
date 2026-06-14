@@ -208,6 +208,19 @@ function App() {
   const [cameraError, setCameraError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [exportScale, setExportScale] = useState(1);
+  const [toast, setToast] = useState(null);
+  const [copyToast, setCopyToast] = useState(false);
+  const [copyToastExiting, setCopyToastExiting] = useState(false);
+
+  const toastTimeoutRef = useRef(null);
+  const copyToastTimerRef = useRef(null);
+  const lastScaleRef = useRef(1);
+
+  const showToast = useCallback((msg) => {
+    setToast(msg);
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    toastTimeoutRef.current = setTimeout(() => setToast(null), 4000);
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle('theme-light', isLightMode);
@@ -295,6 +308,13 @@ function App() {
       document.execCommand('copy');
       document.body.removeChild(ta);
     }
+    if (copyToastTimerRef.current) clearTimeout(copyToastTimerRef.current);
+    setCopyToast(true);
+    setCopyToastExiting(false);
+    copyToastTimerRef.current = setTimeout(() => {
+      setCopyToastExiting(true);
+      setTimeout(() => setCopyToast(false), 300);
+    }, 2200);
   }, [text]);
 
   const handleResetAll = useCallback(() => {
@@ -308,21 +328,37 @@ function App() {
     setDensityBias(+(Math.random() * 2.8 + 0.2).toFixed(2));
   }, []);
 
-  const EXPORT_FONTSIZE = 32;
+  const EXPORT_FONTSIZE = 14;
 
   const renderExportCanvas = useCallback((scale) => {
     const lines = text.split('\n').filter(l => l.length > 0);
     if (!lines.length) return null;
     const cols = lines[0].length;
     const rows = lines.length;
-    const fontSize = EXPORT_FONTSIZE * scale;
+
+    const MAX_DIM = 16384;
+    let actualScale = scale;
+    let exportFontSize, charWidth, lineHeight, pad, width, height;
+
+    while (actualScale >= 0.5) {
+      exportFontSize = EXPORT_FONTSIZE * actualScale;
+      const tmp = document.createElement('canvas');
+      const tctx = tmp.getContext('2d');
+      tctx.font = `${exportFontSize}px "VT323", "Courier New", monospace`;
+      charWidth = tctx.measureText('M').width;
+      lineHeight = exportFontSize * 1.2;
+      pad = charWidth;
+      width = Math.ceil(cols * charWidth + pad * 2);
+      height = Math.ceil(rows * lineHeight);
+      if (width <= MAX_DIM && height <= MAX_DIM) break;
+      actualScale = Math.max(0.5, Math.floor((actualScale - 0.5) * 2) / 2);
+    }
+
     const c = document.createElement('canvas');
     const ctx = c.getContext('2d');
-    ctx.font = `${fontSize}px VT323, 'Courier New', monospace`;
-    const charW = ctx.measureText('M').width;
-    const charH = fontSize * 1.2;
-    c.width = Math.ceil(cols * charW);
-    c.height = Math.ceil(rows * charH);
+    c.width = width;
+    c.height = height;
+    ctx.font = `${exportFontSize}px "VT323", "Courier New", monospace`;
 
     let bg, fg;
     if (mixMode === 'phosphor') {
@@ -337,23 +373,37 @@ function App() {
 
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, c.width, c.height);
+    ctx.textBaseline = 'top';
 
-    for (let y = 0; y < rows; y++)
-      for (let x = 0; x < lines[y].length; x++) {
-        ctx.fillStyle = mixMode === 'original' ? (colors[y]?.[x] || '#EAEAEA') : fg;
-        ctx.fillText(lines[y][x], x * charW, (y + 1) * charH);
+    for (let y = 0; y < rows; y++) {
+      const yPos = y * lineHeight;
+      if (mixMode === 'original') {
+        for (let x = 0; x < lines[y].length; x++) {
+          ctx.fillStyle = colors[y]?.[x] || '#EAEAEA';
+          ctx.fillText(lines[y][x], x * charWidth + pad, yPos);
+        }
+      } else {
+        ctx.fillStyle = fg;
+        ctx.fillText(lines[y], pad, yPos);
       }
+    }
+
+    lastScaleRef.current = actualScale;
     return c;
   }, [text, colors, mixMode, isLightMode]);
 
   const handleSavePNG = useCallback(() => {
     const c = renderExportCanvas(exportScale);
     if (!c) return;
+    if (lastScaleRef.current !== exportScale) {
+      const s = lastScaleRef.current;
+      showToast(`Image too large for ${exportScale}x export. Scaled down to ${s}x to ensure successful download.`);
+    }
     const link = document.createElement('a');
     link.download = 'opaque-ascii.png';
     link.href = c.toDataURL('image/png');
     link.click();
-  }, [renderExportCanvas, exportScale]);
+  }, [renderExportCanvas, exportScale, showToast]);
 
   const handleSaveSVG = useCallback(() => {
     const svg = exportSVG(text, colors, mixMode, EXPORT_FONTSIZE * exportScale, isLightMode);
@@ -444,6 +494,7 @@ body{background:${bg};color:${bodyColor};font:16px VT323,'Courier New',monospace
             </pre>
           )}
           {cameraError && <div className="camera-error">{cameraError}</div>}
+          {toast && <div className="toast">{toast}</div>}
         </main>
 
         <aside className="sidebar">
@@ -559,6 +610,15 @@ body{background:${bg};color:${bodyColor};font:16px VT323,'Courier New',monospace
         <canvas ref={canvasRef} className="hidden" />
         <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} />
       </div>
+
+      {copyToast && (
+        <div className={`copy-toast ${copyToastExiting ? 'exit' : 'enter'}`}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span>ASCII copied to clipboard</span>
+        </div>
+      )}
     </div>
   );
 }
