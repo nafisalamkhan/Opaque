@@ -190,6 +190,18 @@ function SegmentedControl({ options, value, onChange, width }) {
   );
 }
 
+function Toast({ message, visible, exiting }) {
+  if (!visible) return null;
+  return (
+    <div className={`copy-toast ${exiting ? 'exit' : 'enter'}`}>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <span>{message}</span>
+    </div>
+  );
+}
+
 function App() {
   const [isLightMode, setIsLightMode] = useState(false);
   const [mixMode, setMixMode] = useState('phosphor');
@@ -208,18 +220,30 @@ function App() {
   const [cameraError, setCameraError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [exportScale, setExportScale] = useState(1);
-  const [toast, setToast] = useState(null);
-  const [copyToast, setCopyToast] = useState(false);
-  const [copyToastExiting, setCopyToastExiting] = useState(false);
+  const [scaleToast, setScaleToast] = useState(null);
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [toastExiting, setToastExiting] = useState(false);
 
-  const toastTimeoutRef = useRef(null);
-  const copyToastTimerRef = useRef(null);
+  const scaleToastTimeoutRef = useRef(null);
+  const toastTimerRef = useRef(null);
   const lastScaleRef = useRef(1);
 
-  const showToast = useCallback((msg) => {
-    setToast(msg);
-    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    toastTimeoutRef.current = setTimeout(() => setToast(null), 4000);
+  const showScaleToast = useCallback((msg) => {
+    setScaleToast(msg);
+    if (scaleToastTimeoutRef.current) clearTimeout(scaleToastTimeoutRef.current);
+    scaleToastTimeoutRef.current = setTimeout(() => setScaleToast(null), 4000);
+  }, []);
+
+  const triggerToast = useCallback((msg) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToastMessage(msg);
+    setShowToast(true);
+    setToastExiting(false);
+    toastTimerRef.current = setTimeout(() => {
+      setToastExiting(true);
+      setTimeout(() => setShowToast(false), 300);
+    }, 2200);
   }, []);
 
   useEffect(() => {
@@ -308,14 +332,8 @@ function App() {
       document.execCommand('copy');
       document.body.removeChild(ta);
     }
-    if (copyToastTimerRef.current) clearTimeout(copyToastTimerRef.current);
-    setCopyToast(true);
-    setCopyToastExiting(false);
-    copyToastTimerRef.current = setTimeout(() => {
-      setCopyToastExiting(true);
-      setTimeout(() => setCopyToast(false), 300);
-    }, 2200);
-  }, [text]);
+    triggerToast('ASCII copied to clipboard');
+  }, [text, triggerToast]);
 
   const handleResetAll = useCallback(() => {
     setBrightness(0); setContrast(0); setGamma(1); setPixelate(0);
@@ -397,22 +415,24 @@ function App() {
     if (!c) return;
     if (lastScaleRef.current !== exportScale) {
       const s = lastScaleRef.current;
-      showToast(`Image too large for ${exportScale}x export. Scaled down to ${s}x to ensure successful download.`);
+      showScaleToast(`Image too large for ${exportScale}x export. Scaled down to ${s}x to ensure successful download.`);
     }
     const link = document.createElement('a');
     link.download = 'opaque-ascii.png';
     link.href = c.toDataURL('image/png');
     link.click();
-  }, [renderExportCanvas, exportScale, showToast]);
+    triggerToast('PNG downloaded successfully');
+  }, [renderExportCanvas, exportScale, showScaleToast, triggerToast]);
 
   const handleSaveSVG = useCallback(() => {
     const svg = exportSVG(text, colors, mixMode, EXPORT_FONTSIZE * exportScale, isLightMode);
-    if (svg) download('opaque-ascii.svg', svg, 'image/svg+xml');
-  }, [text, colors, mixMode, exportScale, isLightMode]);
+    if (svg) { download('opaque-ascii.svg', svg, 'image/svg+xml'); triggerToast('SVG downloaded successfully'); }
+  }, [text, colors, mixMode, exportScale, isLightMode, triggerToast]);
 
   const handleSaveTXT = useCallback(() => {
     download('opaque-ascii.txt', text, 'text/plain');
-  }, [text]);
+    triggerToast('TXT downloaded successfully');
+  }, [text, triggerToast]);
 
   const handleSaveHTML = useCallback(() => {
     const lines = text.split('\n').filter(l => l.length > 0);
@@ -436,20 +456,24 @@ function App() {
 body{background:${bg};color:${bodyColor};font:16px VT323,'Courier New',monospace;white-space:pre;margin:0;padding:16px}
 </style></head><body><pre>${content}</pre></body></html>`;
     download('opaque-ascii.html', html, 'text/html');
-  }, [text, colors, mixMode, isLightMode]);
+    triggerToast('HTML downloaded successfully');
+  }, [text, colors, mixMode, isLightMode, triggerToast]);
 
   const handleSaveJSON = useCallback(() => {
     download('opaque-ascii.json', exportJSON(text, colors), 'application/json');
-  }, [text, colors]);
+    triggerToast('JSON downloaded successfully');
+  }, [text, colors, triggerToast]);
 
   const handleSaveANSI = useCallback(() => {
     download('opaque-ascii.ansi', exportANSI(text, colors, mixMode), 'text/plain');
-  }, [text, colors, mixMode]);
+    triggerToast('ANSI downloaded successfully');
+  }, [text, colors, mixMode, triggerToast]);
 
   const handleDownloadAll = useCallback(() => {
     handleSavePNG(); handleSaveSVG(); handleSaveTXT();
     handleSaveHTML(); handleSaveJSON(); handleSaveANSI();
-  }, [handleSavePNG, handleSaveSVG, handleSaveTXT, handleSaveHTML, handleSaveJSON, handleSaveANSI]);
+    triggerToast('All formats downloaded');
+  }, [handleSavePNG, handleSaveSVG, handleSaveTXT, handleSaveHTML, handleSaveJSON, handleSaveANSI, triggerToast]);
 
   const hasContent = !!(uploadedImage || cameraActive);
   const lines = text.split('\n');
@@ -494,7 +518,7 @@ body{background:${bg};color:${bodyColor};font:16px VT323,'Courier New',monospace
             </pre>
           )}
           {cameraError && <div className="camera-error">{cameraError}</div>}
-          {toast && <div className="toast">{toast}</div>}
+          {scaleToast && <div className="toast">{scaleToast}</div>}
         </main>
 
         <aside className="sidebar">
@@ -611,14 +635,7 @@ body{background:${bg};color:${bodyColor};font:16px VT323,'Courier New',monospace
         <input ref={fileInputRef} type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} />
       </div>
 
-      {copyToast && (
-        <div className={`copy-toast ${copyToastExiting ? 'exit' : 'enter'}`}>
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          <span>ASCII copied to clipboard</span>
-        </div>
-      )}
+      <Toast message={toastMessage} visible={showToast} exiting={toastExiting} />
     </div>
   );
 }
