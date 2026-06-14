@@ -29,14 +29,18 @@ function exportSVG(text, colors, mixMode, fontSize, isLightMode) {
   const charH = fontSize * 1.2;
   const cols = lines[0].length;
   const rows = lines.length;
-  const bg = isLightMode ? '#FFFFFF' : '#000000';
+
+  let bg;
+  if (mixMode === 'phosphor') bg = '#000000';
+  else bg = isLightMode ? '#FFFFFF' : '#000000';
+
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${cols * charW}" height="${rows * charH}">`;
   svg += `<style>text{font:${fontSize}px VT323,'Courier New',monospace}</style>`;
   svg += `<rect width="100%" height="100%" fill="${bg}"/>`;
   for (let y = 0; y < rows; y++)
     for (let x = 0; x < lines[y].length; x++) {
       let color;
-      if (mixMode === 'phosphor') color = isLightMode ? '#0A2510' : '#39FF14';
+      if (mixMode === 'phosphor') color = '#39FF14';
       else if (mixMode === 'mono') color = isLightMode ? '#000000' : '#FFFFFF';
       else color = colors[y]?.[x] || '#EAEAEA';
       const ch = lines[y][x].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -312,20 +316,31 @@ function App() {
     const cols = lines[0].length;
     const rows = lines.length;
     const fontSize = EXPORT_FONTSIZE * scale;
-    const charW = getCharWidth(fontSize);
-    const charH = fontSize * 1.2;
     const c = document.createElement('canvas');
+    const ctx = c.getContext('2d');
+    ctx.font = `${fontSize}px VT323, 'Courier New', monospace`;
+    const charW = ctx.measureText('M').width;
+    const charH = fontSize * 1.2;
     c.width = Math.ceil(cols * charW);
     c.height = Math.ceil(rows * charH);
-    const ctx = c.getContext('2d');
-    ctx.fillStyle = isLightMode ? '#FFFFFF' : '#000000';
+
+    let bg, fg;
+    if (mixMode === 'phosphor') {
+      bg = '#000000'; fg = '#39FF14';
+    } else if (mixMode === 'mono') {
+      bg = isLightMode ? '#FFFFFF' : '#000000';
+      fg = isLightMode ? '#000000' : '#FFFFFF';
+    } else {
+      bg = isLightMode ? '#FFFFFF' : '#000000';
+      fg = null;
+    }
+
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, c.width, c.height);
-    ctx.font = `${fontSize}px VT323, 'Courier New', monospace`;
+
     for (let y = 0; y < rows; y++)
       for (let x = 0; x < lines[y].length; x++) {
-        if (mixMode === 'phosphor') ctx.fillStyle = isLightMode ? '#0A2510' : '#39FF14';
-        else if (mixMode === 'mono') ctx.fillStyle = isLightMode ? '#000000' : '#FFFFFF';
-        else ctx.fillStyle = colors[y]?.[x] || '#EAEAEA';
+        ctx.fillStyle = mixMode === 'original' ? (colors[y]?.[x] || '#EAEAEA') : fg;
         ctx.fillText(lines[y][x], x * charW, (y + 1) * charH);
       }
     return c;
@@ -351,16 +366,21 @@ function App() {
 
   const handleSaveHTML = useCallback(() => {
     const lines = text.split('\n').filter(l => l.length > 0);
-    let content, bodyColor;
-    const bg = isLightMode ? '#FFFFFF' : '#000000';
+    let content, bodyColor, bg;
+    if (mixMode === 'phosphor') {
+      bg = '#000000';
+      bodyColor = '#39FF14';
+    } else if (mixMode === 'mono') {
+      bg = isLightMode ? '#FFFFFF' : '#000000';
+      bodyColor = isLightMode ? '#000000' : '#FFFFFF';
+    } else {
+      bg = isLightMode ? '#FFFFFF' : '#000000';
+      bodyColor = '#EAEAEA';
+    }
     if (mixMode === 'original') {
       content = renderTrueColorHtml(lines, colors);
-      bodyColor = '#EAEAEA';
     } else {
       content = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      bodyColor = mixMode === 'phosphor'
-        ? (isLightMode ? '#0A2510' : '#39FF14')
-        : (isLightMode ? '#000000' : '#FFFFFF');
     }
     const html = `<!DOCTYPE html><html><head><style>
 body{background:${bg};color:${bodyColor};font:16px VT323,'Courier New',monospace;white-space:pre;margin:0;padding:16px}
