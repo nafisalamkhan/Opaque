@@ -47,26 +47,6 @@ function applyBC(value, brightness, contrast) {
   return clamp(Math.round(v * 255), 0, 255);
 }
 
-function blendChannel(f, b, mode) {
-  switch (mode) {
-    case 'multiply': return (f * b) / 255;
-    case 'screen': return 255 - ((255 - f) * (255 - b)) / 255;
-    case 'overlay':
-      return b < 128 ? (2 * f * b) / 255 : 255 - (2 * (255 - f) * (255 - b)) / 255;
-    case 'darken': return Math.min(f, b);
-    case 'lighten': return Math.max(f, b);
-    case 'color-dodge': return Math.min(255, (b * 255) / (255 - f || 1));
-    case 'color-burn': return 255 - Math.min(255, ((255 - b) * 255) / (f || 1));
-    case 'soft-light': {
-      const d = f / 255;
-      return clamp(b + (2 * d - 1) * (b < 128 ? b : 255 - b), 0, 255);
-    }
-    case 'hard-light':
-      return f < 128 ? (2 * f * b) / 255 : 255 - (2 * (255 - f) * (255 - b)) / 255;
-    default: return f;
-  }
-}
-
 export function useAsciiRender({
   videoRef,
   canvasRef,
@@ -81,9 +61,7 @@ export function useAsciiRender({
   densityBias = 1,
   heightScale = 1,
   pixelate = 0,
-  mixMode = 'mono',
-  background = 'solid',
-  blendMode = 'normal',
+  mixMode = 'phosphor',
 }) {
   const [result, setResult] = useState({ text: '', colors: [] });
   const animFrameRef = useRef(null);
@@ -164,30 +142,22 @@ export function useAsciiRender({
         text += density[charIndex];
 
         let fr, fg, fb;
-        if (mixMode === 'mono') {
-          fr = 0; fg = 255; fb = 65;
+        if (mixMode === 'phosphor') {
+          fr = 57; fg = 255; fb = 20;
+        } else if (mixMode === 'mono') {
+          fr = 255; fg = 255; fb = 255;
         } else {
           fr = r; fg = g; fb = b;
         }
 
-        if (background === 'solid' && blendMode !== 'normal') {
-          const bl = blendChannel(fr, 0, blendMode);
-          const blg = blendChannel(fg, 0, blendMode);
-          const blb = blendChannel(fb, 0, blendMode);
-          fr = Math.round(bl);
-          fg = Math.round(blg);
-          fb = Math.round(blb);
-        }
-
-        const alpha = background === 'transparent' ? 0 : 255;
-        rowColors.push(alpha < 255 ? `rgba(${fr},${fg},${fb},${alpha})` : `rgb(${fr},${fg},${fb})`);
+        rowColors.push(`rgb(${fr},${fg},${fb})`);
       }
       text += '\n';
       colors.push(rowColors);
     }
 
     setResult({ text, colors });
-  }, [width, brightness, contrast, gamma, invertL, canvasRef, densityRamp, densityBias, heightScale, pixelate, mixMode, background, blendMode]);
+  }, [width, brightness, contrast, gamma, invertL, canvasRef, densityRamp, densityBias, heightScale, pixelate, mixMode]);
 
   useEffect(() => {
     if (imageSource) {

@@ -1,11 +1,6 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useAsciiRender, getCharWidth, DENSITY_PROFILES } from './hooks/useAsciiRender';
 import './App.css';
-
-const BLEND_MODES = [
-  'Normal', 'Multiply', 'Screen', 'Overlay', 'Darken', 'Lighten',
-  'Color Dodge', 'Color Burn', 'Soft Light', 'Hard Light',
-];
 
 function renderTrueColorHtml(lines, colors) {
   let html = '';
@@ -27,20 +22,23 @@ function renderTrueColorHtml(lines, colors) {
   return html;
 }
 
-function exportSVG(text, colors, mixMode, fontSize) {
+function exportSVG(text, colors, mixMode, fontSize, isLightMode) {
   const lines = text.split('\n').filter(l => l.length > 0);
   if (!lines.length) return '';
   const charW = getCharWidth(fontSize);
   const charH = fontSize * 1.2;
   const cols = lines[0].length;
   const rows = lines.length;
-  const isMono = mixMode === 'mono';
+  const bg = isLightMode ? '#FFFFFF' : '#000000';
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${cols * charW}" height="${rows * charH}">`;
   svg += `<style>text{font:${fontSize}px VT323,'Courier New',monospace}</style>`;
-  svg += `<rect width="100%" height="100%" fill="#000"/>`;
+  svg += `<rect width="100%" height="100%" fill="${bg}"/>`;
   for (let y = 0; y < rows; y++)
     for (let x = 0; x < lines[y].length; x++) {
-      const color = isMono ? '#EAEAEA' : (colors[y]?.[x] || '#EAEAEA');
+      let color;
+      if (mixMode === 'phosphor') color = isLightMode ? '#0A2510' : '#39FF14';
+      else if (mixMode === 'mono') color = isLightMode ? '#000000' : '#FFFFFF';
+      else color = colors[y]?.[x] || '#EAEAEA';
       const ch = lines[y][x].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       svg += `<text x="${(x * charW).toFixed(1)}" y="${((y + 1) * charH).toFixed(1)}" fill="${color}">${ch}</text>`;
     }
@@ -63,10 +61,10 @@ function exportJSON(text, colors) {
 function exportANSI(text, colors, mixMode) {
   const lines = text.split('\n').filter(l => l.length > 0);
   let out = '';
-  const isMono = mixMode === 'mono';
   for (let y = 0; y < lines.length; y++) {
     for (let x = 0; x < lines[y].length; x++) {
-      if (isMono) out += '\x1b[92m' + lines[y][x];
+      if (mixMode === 'phosphor') out += '\x1b[92m' + lines[y][x];
+      else if (mixMode === 'mono') out += '\x1b[97m' + lines[y][x];
       else {
         const c = colors[y]?.[x];
         if (c) {
@@ -129,7 +127,8 @@ function SegmentedControl({ options, value, onChange, width }) {
 }
 
 function App() {
-  const [mixMode, setMixMode] = useState('mono');
+  const [isLightMode, setIsLightMode] = useState(false);
+  const [mixMode, setMixMode] = useState('phosphor');
   const [densityProfile, setDensityProfile] = useState('standard');
   const [densityRamp, setDensityRamp] = useState(DENSITY_PROFILES.standard);
   const [densityBias, setDensityBias] = useState(1);
@@ -140,13 +139,15 @@ function App() {
   const [contrast, setContrast] = useState(0);
   const [gamma, setGamma] = useState(1);
   const [invertL, setInvertL] = useState(false);
-  const [background, setBackground] = useState('solid');
-  const [blendMode, setBlendMode] = useState('normal');
   const [cameraActive, setCameraActive] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [cameraError, setCameraError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [exportScale, setExportScale] = useState(1);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('theme-light', isLightMode);
+  }, [isLightMode]);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -156,7 +157,7 @@ function App() {
   const { text, colors } = useAsciiRender({
     videoRef, canvasRef, width, brightness, contrast, gamma, invertL,
     cameraActive, imageSource: uploadedImage, densityRamp, densityBias,
-    heightScale, pixelate, mixMode, background, blendMode,
+    heightScale, pixelate, mixMode,
   });
 
   const loadImage = useCallback((file) => {
@@ -236,8 +237,7 @@ function App() {
     setBrightness(0); setContrast(0); setGamma(1); setPixelate(0);
     setInvertL(false); setDensityProfile('standard'); setDensityRamp(DENSITY_PROFILES.standard);
     setDensityBias(1);
-    setHeightScale(1); setMixMode('mono'); setBackground('solid');
-    setBlendMode('normal');
+    setHeightScale(1); setMixMode('phosphor');
   }, []);
 
   const handleRandomBias = useCallback(() => {
@@ -258,16 +258,18 @@ function App() {
     c.width = Math.ceil(cols * charW);
     c.height = Math.ceil(rows * charH);
     const ctx = c.getContext('2d');
-    if (background === 'solid') { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, c.width, c.height); }
+    ctx.fillStyle = isLightMode ? '#FFFFFF' : '#000000';
+    ctx.fillRect(0, 0, c.width, c.height);
     ctx.font = `${fontSize}px VT323, 'Courier New', monospace`;
-    const isMono = mixMode === 'mono';
     for (let y = 0; y < rows; y++)
       for (let x = 0; x < lines[y].length; x++) {
-        ctx.fillStyle = isMono ? '#EAEAEA' : (colors[y]?.[x] || '#EAEAEA');
+        if (mixMode === 'phosphor') ctx.fillStyle = isLightMode ? '#0A2510' : '#39FF14';
+        else if (mixMode === 'mono') ctx.fillStyle = isLightMode ? '#000000' : '#FFFFFF';
+        else ctx.fillStyle = colors[y]?.[x] || '#EAEAEA';
         ctx.fillText(lines[y][x], x * charW, (y + 1) * charH);
       }
     return c;
-  }, [text, colors, mixMode, background]);
+  }, [text, colors, mixMode, isLightMode]);
 
   const handleSavePNG = useCallback(() => {
     const c = renderExportCanvas(exportScale);
@@ -279,9 +281,9 @@ function App() {
   }, [renderExportCanvas, exportScale]);
 
   const handleSaveSVG = useCallback(() => {
-    const svg = exportSVG(text, colors, mixMode, EXPORT_FONTSIZE * exportScale);
+    const svg = exportSVG(text, colors, mixMode, EXPORT_FONTSIZE * exportScale, isLightMode);
     if (svg) download('opaque-ascii.svg', svg, 'image/svg+xml');
-  }, [text, colors, mixMode, exportScale]);
+  }, [text, colors, mixMode, exportScale, isLightMode]);
 
   const handleSaveTXT = useCallback(() => {
     download('opaque-ascii.txt', text, 'text/plain');
@@ -289,16 +291,22 @@ function App() {
 
   const handleSaveHTML = useCallback(() => {
     const lines = text.split('\n').filter(l => l.length > 0);
-    const isMono = mixMode === 'mono';
-    const content = isMono
-      ? text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      : renderTrueColorHtml(lines, colors);
-    const bgStyle = background === 'solid' ? 'background:#000;' : '';
+    let content, bodyColor;
+    const bg = isLightMode ? '#FFFFFF' : '#000000';
+    if (mixMode === 'original') {
+      content = renderTrueColorHtml(lines, colors);
+      bodyColor = '#EAEAEA';
+    } else {
+      content = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      bodyColor = mixMode === 'phosphor'
+        ? (isLightMode ? '#0A2510' : '#39FF14')
+        : (isLightMode ? '#000000' : '#FFFFFF');
+    }
     const html = `<!DOCTYPE html><html><head><style>
-body{${bgStyle}color:#EAEAEA;font:16px VT323,'Courier New',monospace;white-space:pre;margin:0;padding:16px}
+body{background:${bg};color:${bodyColor};font:16px VT323,'Courier New',monospace;white-space:pre;margin:0;padding:16px}
 </style></head><body><pre>${content}</pre></body></html>`;
     download('opaque-ascii.html', html, 'text/html');
-  }, [text, colors, mixMode, background]);
+  }, [text, colors, mixMode, isLightMode]);
 
   const handleSaveJSON = useCallback(() => {
     download('opaque-ascii.json', exportJSON(text, colors), 'application/json');
@@ -315,16 +323,19 @@ body{${bgStyle}color:#EAEAEA;font:16px VT323,'Courier New',monospace;white-space
 
   const hasContent = !!(uploadedImage || cameraActive);
   const lines = text.split('\n');
-  const trueColorHtml = (mixMode !== 'mono') && hasContent ? renderTrueColorHtml(lines, colors) : '';
+  const trueColorHtml = (mixMode === 'original') && hasContent ? renderTrueColorHtml(lines, colors) : '';
 
   return (
     <div
-      className={`app ${dragOver ? 'drag-over' : ''}`}
+      className={`app ${isLightMode ? 'theme-light' : ''} ${dragOver ? 'drag-over' : ''}`}
       onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave}
     >
       <header className="topbar">
         <div className="logo">Opaque</div>
         <div className="topbar-actions">
+          <button className="topbar-btn" onClick={() => setIsLightMode(s => !s)} title="Toggle theme">
+            {isLightMode ? '🌙' : '☀️'}
+          </button>
           <button className={`topbar-btn ${cameraActive ? 'active' : ''}`} onClick={handleCameraToggle} title="Toggle camera">
             {cameraActive ? '■' : '◉'}
           </button>
@@ -348,11 +359,10 @@ body{${bgStyle}color:#EAEAEA;font:16px VT323,'Courier New',monospace;white-space
           ) : (
             <pre
               ref={preRef}
-              className={`ascii-output ${mixMode === 'mono' ? 'mono' : 'color'} ${background === 'transparent' ? 'bg-transparent' : ''}`}
-              style={blendMode !== 'normal' ? { mixBlendMode: blendMode } : undefined}
+              className={`ascii-output ${mixMode === 'phosphor' ? 'phosphor' : mixMode === 'mono' ? 'mono' : 'color'}`}
               tabIndex={0}
             >
-              {mixMode !== 'mono' ? (
+              {mixMode === 'original' ? (
                 <span dangerouslySetInnerHTML={{ __html: trueColorHtml }} />
               ) : (
                 text
@@ -418,30 +428,17 @@ body{${bgStyle}color:#EAEAEA;font:16px VT323,'Courier New',monospace;white-space
               <div className="section-header">
                 <span className="section-title">:: Colors & Compositing</span>
                 <button className="section-reset" onClick={() => {
-                  setMixMode('mono'); setBackground('solid'); setBlendMode('normal');
+                  setMixMode('phosphor');
                 }} title="Reset section">↺</button>
               </div>
               <div className="section-body">
                 <div className="control-group">
                   <label className="control-label">Mix Mode</label>
                   <SegmentedControl options={[
+                    { label: 'Phosphor', value: 'phosphor' },
                     { label: 'Mono', value: 'mono' },
-                    { label: 'Multi', value: 'multi' },
                     { label: 'Original', value: 'original' },
                   ]} value={mixMode} onChange={setMixMode} />
-                </div>
-                <div className="control-group">
-                  <label className="control-label">Background</label>
-                  <SegmentedControl options={[
-                    { label: 'Solid', value: 'solid' },
-                    { label: 'Transparent', value: 'transparent' },
-                  ]} value={background} onChange={setBackground} />
-                </div>
-                <div className="control-group">
-                  <label className="control-label">Blend Mode</label>
-                  <select className="select-blend" value={blendMode} onChange={e => setBlendMode(e.target.value)}>
-                    {BLEND_MODES.map(m => <option key={m} value={m.toLowerCase()}>{m}</option>)}
-                  </select>
                 </div>
               </div>
             </div>
