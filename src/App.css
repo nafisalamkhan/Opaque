@@ -39,6 +39,17 @@
   --selection-bg: rgba(255, 255, 255, 0.1);
   --drag-border: rgba(255, 255, 255, 0.1);
   --drag-bg: rgba(255, 255, 255, 0.03);
+
+  --bg-output: #000000;
+  --btn-header-bg: rgba(20, 20, 20, 0.6);
+  --btn-header-border: rgba(255, 255, 255, 0.1);
+  --btn-header-color: rgba(255, 255, 255, 0.8);
+  --btn-header-hover-bg: rgba(255, 255, 255, 0.05);
+  --btn-header-hover-color: #FFFFFF;
+  --btn-header-hover-border: rgba(255, 255, 255, 0.3);
+  --btn-header-active-bg: rgba(255, 255, 255, 0.1);
+  --btn-header-active-color: #FFFFFF;
+  --btn-header-active-border: rgba(255, 255, 255, 0.25);
 }
 
 :root.theme-light {
@@ -55,9 +66,9 @@
   --text-accent: #FFFFFF;
   --text-disabled: #9AAB9E;
 
-  --color-accent: #1DBB33;
+  --color-accent: #1C1C1E;
   --color-phosphor: #0A2510;
-  --color-mono: #000000;
+  --color-mono: #1C1C1E;
 
   --border-default: rgba(0, 0, 0, 0.1);
   --border-subtle: rgba(0, 0, 0, 0.08);
@@ -82,6 +93,17 @@
   --selection-bg: rgba(29, 187, 51, 0.2);
   --drag-border: rgba(0, 0, 0, 0.1);
   --drag-bg: rgba(0, 0, 0, 0.03);
+
+  --bg-output: #FFFFFF;
+  --btn-header-bg: rgba(0, 0, 0, 0.04);
+  --btn-header-border: rgba(0, 0, 0, 0.1);
+  --btn-header-color: #6B7A6F;
+  --btn-header-hover-bg: rgba(0, 0, 0, 0.06);
+  --btn-header-hover-color: #0A2510;
+  --btn-header-hover-border: rgba(0, 0, 0, 0.25);
+  --btn-header-active-bg: rgba(0, 0, 0, 0.08);
+  --btn-header-active-color: #0A2510;
+  --btn-header-active-border: rgba(0, 0, 0, 0.2);
 }
 
 /* ─── App ─── */
@@ -131,27 +153,30 @@
 }
 
 .topbar-btn {
-  background: none;
-  border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--btn-header-bg);
+  border: 1px solid var(--btn-header-border);
+  color: var(--btn-header-color);
   font-size: 12px;
   font-weight: 500;
   padding: 6px 14px;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 
 .topbar-btn:hover {
-  background: var(--bg-hover-subtle);
-  color: var(--text-primary);
-  border-color: var(--border-hover);
+  background: var(--btn-header-hover-bg);
+  color: var(--btn-header-hover-color);
+  border-color: var(--btn-header-hover-border);
 }
 
 .topbar-btn.active {
-  background: var(--bg-active);
-  color: var(--text-primary);
-  border-color: var(--border-active);
+  background: var(--btn-header-active-bg);
+  color: var(--btn-header-active-color);
+  border-color: var(--btn-header-active-border);
 }
 
 /* ─── Workspace Split ─── */
@@ -242,7 +267,6 @@
   white-space: pre;
   margin: 0;
   padding: 8px;
-  background: var(--bg-ascii);
   border: 1px solid var(--border-ascii);
   border-radius: 12px;
   outline: none;
@@ -252,10 +276,11 @@
   width: fit-content;
   min-width: 100%;
   color: var(--text-primary);
+  background: transparent;
 }
 
 .ascii-output.phosphor {
-  color: var(--color-phosphor);
+  color: #39FF14;
 }
 
 .ascii-output.mono {

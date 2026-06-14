@@ -80,6 +80,66 @@ function exportANSI(text, colors, mixMode) {
   return out;
 }
 
+function SunIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="5"/>
+      <line x1="12" y1="1" x2="12" y2="3"/>
+      <line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/>
+      <line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  );
+}
+
+function CameraIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+      <circle cx="12" cy="13" r="4"/>
+    </svg>
+  );
+}
+
+function ResetIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="1 4 1 10 7 10"/>
+      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+    </svg>
+  );
+}
+
+function InvertIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 2a10 10 0 0 1 0 20"/>
+    </svg>
+  );
+}
+
+function HeaderButton({ icon, label, active, onClick, title }) {
+  return (
+    <button className={`topbar-btn ${active ? 'active' : ''}`} onClick={onClick} title={title}>
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+}
+
 function download(filename, content, mime) {
   const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
@@ -333,16 +393,10 @@ body{background:${bg};color:${bodyColor};font:16px VT323,'Courier New',monospace
       <header className="topbar">
         <div className="logo">Opaque</div>
         <div className="topbar-actions">
-          <button className="topbar-btn" onClick={() => setIsLightMode(s => !s)} title="Toggle theme">
-            {isLightMode ? '🌙' : '☀️'}
-          </button>
-          <button className={`topbar-btn ${cameraActive ? 'active' : ''}`} onClick={handleCameraToggle} title="Toggle camera">
-            {cameraActive ? '■' : '◉'}
-          </button>
-          <button className="topbar-btn" onClick={handleResetAll}>↺ Reset</button>
-          <button className={`topbar-btn ${invertL ? 'active' : ''}`} onClick={() => setInvertL(s => !s)}>
-            ⊗ Invert
-          </button>
+          <HeaderButton icon={isLightMode ? <MoonIcon /> : <SunIcon />} label="Theme" onClick={() => setIsLightMode(s => !s)} title="Toggle theme" />
+          <HeaderButton icon={<CameraIcon />} label="Camera" active={cameraActive} onClick={handleCameraToggle} title="Toggle camera" />
+          <HeaderButton icon={<ResetIcon />} label="Reset" onClick={handleResetAll} title="Reset all settings" />
+          <HeaderButton icon={<InvertIcon />} label="Invert" active={invertL} onClick={() => setInvertL(s => !s)} title="Toggle invert" />
         </div>
       </header>
 
