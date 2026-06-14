@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════
-   Premium Dark Mode — Design System
-   ═══════════════════════════════════════ */
-
+/* ─── App ─── */
 .app {
   display: flex;
   flex-direction: column;
@@ -14,7 +11,7 @@
   position: absolute;
   inset: 0;
   background: rgba(255, 255, 255, 0.03);
-  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border: 2px dashed rgba(255, 255, 255, 0.1);
   z-index: 100;
   pointer-events: none;
 }
@@ -62,12 +59,12 @@
 }
 
 .pill-tabs .tab.active {
-  background: #2a2a2a;
-  color: #EAEAEA;
+  background: #EAEAEA;
+  color: #0A0A0A;
 }
 
 .pill-tabs .tab:hover:not(.active) {
-  color: #999;
+  color: #EAEAEA;
 }
 
 /* ─── Topbar Actions ─── */
@@ -80,7 +77,7 @@
 .topbar-btn {
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  color: #888;
+  color: #777;
   font-size: 12px;
   font-weight: 500;
   padding: 6px 14px;
@@ -90,15 +87,15 @@
 }
 
 .topbar-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #ccc;
+  background: rgba(255, 255, 255, 0.04);
+  color: #EAEAEA;
   border-color: rgba(255, 255, 255, 0.1);
 }
 
 .topbar-btn.active {
   background: rgba(255, 255, 255, 0.08);
   color: #EAEAEA;
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 /* ─── Workspace Split ─── */
@@ -147,13 +144,13 @@
 }
 
 .drop-zone:hover {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .app.drag-over .drop-zone {
-  border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .drop-zone-content {
@@ -164,20 +161,20 @@
 
 .drop-icon {
   font-size: 36px;
-  color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.15);
   display: block;
   margin-bottom: 12px;
 }
 
 .drop-title {
   font-size: 15px;
-  color: #777;
+  color: #888;
   margin-bottom: 6px;
 }
 
 .drop-hint {
   font-size: 11px;
-  color: #555;
+  color: #888;
   margin-bottom: 0;
 }
 
@@ -198,15 +195,15 @@
   overflow: visible;
   width: fit-content;
   min-width: 100%;
-  color: #00FF41;
+  color: #EAEAEA;
 }
 
 .ascii-output.mono {
-  color: #00FF41;
+  color: #EAEAEA;
 }
 
 .ascii-output.color {
-  color: #00FF41;
+  color: #EAEAEA;
 }
 
 .ascii-output.color span {
@@ -218,15 +215,15 @@
   border-color: transparent;
 }
 
-/* ─── Camera Error ─── */
 /* ─── Ramp String Display ─── */
 .ramp-display {
   background: #080808;
   padding: 12px 16px;
   border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   font-family: 'Courier New', Consolas, monospace;
   font-size: 14px;
-  color: #ddd;
+  color: #EAEAEA;
   letter-spacing: 2px;
   user-select: all;
   overflow-x: auto;
@@ -296,7 +293,7 @@
 .section-title {
   font-size: 12px;
   font-weight: 600;
-  color: #666;
+  color: #777;
   text-transform: uppercase;
   letter-spacing: 1.5px;
 }
@@ -304,7 +301,7 @@
 .section-reset {
   background: none;
   border: none;
-  color: #444;
+  color: #777;
   font-size: 14px;
   cursor: pointer;
   padding: 2px 4px;
@@ -313,8 +310,8 @@
 }
 
 .section-reset:hover {
-  color: #999;
-  background: rgba(255, 255, 255, 0.05);
+  color: #EAEAEA;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .section-body {
@@ -333,7 +330,7 @@
 
 .control-label {
   font-size: 12px;
-  color: #666;
+  color: #777;
   font-weight: 500;
 }
 
@@ -351,7 +348,7 @@
   flex: 1;
   background: none;
   border: none;
-  color: #666;
+  color: #777;
   font-size: 13px;
   font-weight: 500;
   padding: 7px 12px;
@@ -362,12 +359,12 @@
 }
 
 .segmented-control button.active {
-  background: #2e2e2e;
-  color: #EAEAEA;
+  background: #EAEAEA;
+  color: #0A0A0A;
 }
 
 .segmented-control button:hover:not(.active) {
-  color: #999;
+  color: #EAEAEA;
 }
 
 /* ─── Slider ─── */
@@ -408,7 +405,7 @@
   top: 0;
   left: 0;
   height: 100%;
-  background: #555;
+  background: #EAEAEA;
   border-radius: 7px;
   pointer-events: none;
   transition: width 0.05s;
@@ -434,7 +431,7 @@
   appearance: none;
   width: 22px;
   height: 18px;
-  background: #bbb;
+  background: #EAEAEA;
   border-radius: 9px;
   border: none;
   cursor: pointer;
@@ -442,13 +439,13 @@
 }
 
 .slider-input::-webkit-slider-thumb:hover {
-  background: #eee;
+  background: #EAEAEA;
 }
 
 .slider-input::-moz-range-thumb {
   width: 22px;
   height: 18px;
-  background: #bbb;
+  background: #EAEAEA;
   border-radius: 9px;
   border: none;
   cursor: pointer;
@@ -474,7 +471,7 @@
   width: 100%;
   background: #1e1e1e;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  color: #ccc;
+  color: #EAEAEA;
   font-size: 13px;
   font-weight: 500;
   padding: 9px 12px;
@@ -491,8 +488,8 @@
 }
 
 .select-blend option {
-  background: #1a1a1a;
-  color: #ccc;
+  background: #141414;
+  color: #EAEAEA;
 }
 
 /* ─── Buttons ─── */
@@ -511,7 +508,7 @@
   flex: 1;
   background: #1e1e1e;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  color: #999;
+  color: #EAEAEA;
   font-size: 13px;
   font-weight: 500;
   padding: 8px 12px;
@@ -523,7 +520,7 @@
 
 .btn-secondary:hover {
   background: #2a2a2a;
-  color: #ccc;
+  color: #EAEAEA;
   border-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -534,18 +531,18 @@
 
 .btn-secondary:disabled:hover {
   background: #1e1e1e;
-  color: #999;
+  color: #777;
   border-color: rgba(255, 255, 255, 0.06);
 }
 
 .btn-secondary.active {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   color: #EAEAEA;
 }
 
 .btn-primary {
   width: 100%;
-  background: #fff;
+  background: #EAEAEA;
   border: none;
   color: #0A0A0A;
   font-size: 14px;
@@ -558,23 +555,23 @@
 }
 
 .btn-primary:hover {
-  background: #e8e8e8;
+  background: #EAEAEA;
 }
 
 .btn-primary:disabled {
-  background: #2a2a2a;
-  color: #555;
+  background: #1e1e1e;
+  color: #777;
   cursor: not-allowed;
 }
 
 .btn-primary:disabled:hover {
-  background: #2a2a2a;
+  background: #1e1e1e;
 }
 
 .btn-sm {
   background: #1e1e1e;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  color: #888;
+  color: #777;
   font-size: 16px;
   width: 36px;
   height: 36px;
@@ -590,7 +587,7 @@
 
 .btn-sm:hover {
   background: #2a2a2a;
-  color: #ccc;
+  color: #EAEAEA;
 }
 
 /* ─── Compose Tab ─── */
@@ -600,7 +597,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #666;
+  color: #777;
   text-align: center;
 }
 
@@ -610,7 +607,7 @@
 
 .empty-hint {
   font-size: 11px;
-  color: #555;
+  color: #777;
 }
 
 /* ─── Hidden ─── */

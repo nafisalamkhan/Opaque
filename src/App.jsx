@@ -14,7 +14,7 @@ function renderTrueColorHtml(lines, colors) {
     const rowColors = colors[y] || [];
     let i = 0;
     while (i < line.length) {
-      const color = rowColors[i] || '#00FF41';
+      const color = rowColors[i] || '#EAEAEA';
       let j = i + 1;
       while (j < line.length && rowColors[j] === color) j++;
       const chars = line.slice(i, j)
@@ -40,7 +40,7 @@ function exportSVG(text, colors, mixMode, fontSize) {
   svg += `<rect width="100%" height="100%" fill="#000"/>`;
   for (let y = 0; y < rows; y++)
     for (let x = 0; x < lines[y].length; x++) {
-      const color = isMono ? '#00FF41' : (colors[y]?.[x] || '#00FF41');
+      const color = isMono ? '#EAEAEA' : (colors[y]?.[x] || '#EAEAEA');
       const ch = lines[y][x].replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       svg += `<text x="${(x * charW).toFixed(1)}" y="${((y + 1) * charH).toFixed(1)}" fill="${color}">${ch}</text>`;
     }
@@ -262,7 +262,7 @@ function App() {
     const isMono = mixMode === 'mono';
     for (let y = 0; y < rows; y++)
       for (let x = 0; x < lines[y].length; x++) {
-        ctx.fillStyle = isMono ? '#00FF41' : (colors[y]?.[x] || '#00FF41');
+        ctx.fillStyle = isMono ? '#EAEAEA' : (colors[y]?.[x] || '#EAEAEA');
         ctx.fillText(lines[y][x], x * charW, (y + 1) * charH);
       }
     return c;
@@ -294,7 +294,7 @@ function App() {
       : renderTrueColorHtml(lines, colors);
     const bgStyle = background === 'solid' ? 'background:#000;' : '';
     const html = `<!DOCTYPE html><html><head><style>
-body{${bgStyle}color:#00FF41;font:16px VT323,'Courier New',monospace;white-space:pre;margin:0;padding:16px}
+body{${bgStyle}color:#EAEAEA;font:16px VT323,'Courier New',monospace;white-space:pre;margin:0;padding:16px}
 </style></head><body><pre>${content}</pre></body></html>`;
     download('opaque-ascii.html', html, 'text/html');
   }, [text, colors, mixMode, background]);
