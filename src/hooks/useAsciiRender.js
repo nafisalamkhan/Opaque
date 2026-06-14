@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const DENSITY = 'Ñ@#W$9876543210?!abc;:+=-,._ ';
+const DENSITY_PROFILES = {
+  standard: '?@#W$9876543210?!abc;:+=-,._ ',
+  blocks: '█▓▒░ ',
+  detailed: '@%#*+=-:. ',
+  minimal: '■□ ',
+};
+
+export { DENSITY_PROFILES };
 
 let charAspect = null;
 
@@ -40,14 +47,43 @@ function applyBC(value, brightness, contrast) {
   return clamp(Math.round(v * 255), 0, 255);
 }
 
+function blendChannel(f, b, mode) {
+  switch (mode) {
+    case 'multiply': return (f * b) / 255;
+    case 'screen': return 255 - ((255 - f) * (255 - b)) / 255;
+    case 'overlay':
+      return b < 128 ? (2 * f * b) / 255 : 255 - (2 * (255 - f) * (255 - b)) / 255;
+    case 'darken': return Math.min(f, b);
+    case 'lighten': return Math.max(f, b);
+    case 'color-dodge': return Math.min(255, (b * 255) / (255 - f || 1));
+    case 'color-burn': return 255 - Math.min(255, ((255 - b) * 255) / (f || 1));
+    case 'soft-light': {
+      const d = f / 255;
+      return clamp(b + (2 * d - 1) * (b < 128 ? b : 255 - b), 0, 255);
+    }
+    case 'hard-light':
+      return f < 128 ? (2 * f * b) / 255 : 255 - (2 * (255 - f) * (255 - b)) / 255;
+    default: return f;
+  }
+}
+
 export function useAsciiRender({
   videoRef,
   canvasRef,
-  width,
-  brightness,
-  contrast,
-  cameraActive,
-  imageSource,
+  width = 120,
+  brightness = 0,
+  contrast = 0,
+  gamma = 1,
+  invertL = false,
+  cameraActive = false,
+  imageSource = null,
+  densityProfile = 'standard',
+  densityBias = 1,
+  heightScale = 1,
+  pixelate = 0,
+  mixMode = 'mono',
+  background = 'solid',
+  blendMode = 'normal',
 }) {
   const [result, setResult] = useState({ text: '', colors: [] });
   const animFrameRef = useRef(null);
@@ -68,15 +104,31 @@ export function useAsciiRender({
     if (!srcW || !srcH) return;
 
     const cols = width;
-    const rows = Math.floor(cols * (srcH / srcW) * getCharAspect());
+    const rows = Math.max(1, Math.floor(cols * (srcH / srcW) * getCharAspect() * heightScale));
 
-    canvas.width = cols;
-    canvas.height = rows;
-
-    ctx.drawImage(source, 0, 0, cols, rows);
+    if (pixelate > 0) {
+      const blockSize = Math.max(1, Math.round(pixelate * 8));
+      const smallCols = Math.max(1, Math.ceil(cols / blockSize));
+      const smallRows = Math.max(1, Math.ceil(rows / blockSize));
+      const offscreen = document.createElement('canvas');
+      offscreen.width = smallCols;
+      offscreen.height = smallRows;
+      const offCtx = offscreen.getContext('2d');
+      offCtx.drawImage(source, 0, 0, smallCols, smallRows);
+      canvas.width = cols;
+      canvas.height = rows;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(offscreen, 0, 0, cols, rows);
+    } else {
+      canvas.width = cols;
+      canvas.height = rows;
+      ctx.drawImage(source, 0, 0, cols, rows);
+    }
 
     const imageData = ctx.getImageData(0, 0, cols, rows);
     const pixels = imageData.data;
+
+    const density = DENSITY_PROFILES[densityProfile] || DENSITY_PROFILES.standard;
 
     let text = '';
     const colors = [];
@@ -93,17 +145,49 @@ export function useAsciiRender({
         g = applyBC(g, brightness, contrast);
         b = applyBC(b, brightness, contrast);
 
+        if (gamma !== 1) {
+          r = clamp(Math.round(Math.pow(r / 255, gamma) * 255), 0, 255);
+          g = clamp(Math.round(Math.pow(g / 255, gamma) * 255), 0, 255);
+          b = clamp(Math.round(Math.pow(b / 255, gamma) * 255), 0, 255);
+        }
+
+        if (invertL) {
+          r = 255 - r;
+          g = 255 - g;
+          b = 255 - b;
+        }
+
         const luminance = (r * 0.299) + (g * 0.587) + (b * 0.114);
-        const charIndex = Math.floor((luminance / 255) * (DENSITY.length - 1));
-        text += DENSITY[charIndex];
-        rowColors.push(`rgb(${r},${g},${b})`);
+        const norm = luminance / 255;
+        const biased = Math.pow(norm, densityBias);
+        const charIndex = Math.min(Math.floor(biased * (density.length - 1)), density.length - 1);
+        text += density[charIndex];
+
+        let fr, fg, fb;
+        if (mixMode === 'mono') {
+          fr = 0; fg = 255; fb = 65;
+        } else {
+          fr = r; fg = g; fb = b;
+        }
+
+        if (background === 'solid' && blendMode !== 'normal') {
+          const bl = blendChannel(fr, 0, blendMode);
+          const blg = blendChannel(fg, 0, blendMode);
+          const blb = blendChannel(fb, 0, blendMode);
+          fr = Math.round(bl);
+          fg = Math.round(blg);
+          fb = Math.round(blb);
+        }
+
+        const alpha = background === 'transparent' ? 0 : 255;
+        rowColors.push(alpha < 255 ? `rgba(${fr},${fg},${fb},${alpha})` : `rgb(${fr},${fg},${fb})`);
       }
       text += '\n';
       colors.push(rowColors);
     }
 
     setResult({ text, colors });
-  }, [width, brightness, contrast, canvasRef]);
+  }, [width, brightness, contrast, gamma, invertL, canvasRef, densityProfile, densityBias, heightScale, pixelate, mixMode, background, blendMode]);
 
   useEffect(() => {
     if (imageSource) {
@@ -113,9 +197,7 @@ export function useAsciiRender({
 
   useEffect(() => {
     if (!cameraActive || !videoRef.current) return;
-
     let running = true;
-
     function frame() {
       if (!running) return;
       if (videoRef.current?.readyState >= 2) {
@@ -123,14 +205,10 @@ export function useAsciiRender({
       }
       animFrameRef.current = requestAnimationFrame(frame);
     }
-
     animFrameRef.current = requestAnimationFrame(frame);
-
     return () => {
       running = false;
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
-      }
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
   }, [cameraActive, process, videoRef]);
 
