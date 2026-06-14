@@ -33,7 +33,7 @@
 }
 
 .logo {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #EAEAEA;
   letter-spacing: 1px;
@@ -53,9 +53,9 @@
   background: none;
   border: none;
   color: #777;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
-  padding: 5px 20px;
+  padding: 6px 24px;
   border-radius: 999px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
@@ -81,10 +81,10 @@
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: #888;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
-  padding: 5px 12px;
-  border-radius: 8px;
+  padding: 6px 14px;
+  border-radius: 10px;
   cursor: pointer;
   transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
@@ -127,7 +127,7 @@
     linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.03) 75%);
   background-size: 20px 20px;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-  border-radius: 1rem;
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   position: relative;
 }
@@ -141,7 +141,7 @@
   height: 100%;
   min-height: 300px;
   border: 2px dashed rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  border-radius: 16px;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 }
@@ -191,7 +191,7 @@
   padding: 8px;
   background: rgba(0, 0, 0, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
+  border-radius: 12px;
   outline: none;
   user-select: text;
   word-wrap: normal;
@@ -219,27 +219,39 @@
 }
 
 /* ─── Camera Error ─── */
+/* ─── Ramp String Display ─── */
+.ramp-display {
+  background: #080808;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-family: 'Courier New', Consolas, monospace;
+  font-size: 14px;
+  color: #ddd;
+  letter-spacing: 2px;
+  user-select: all;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* ─── Camera Error ─── */
 .camera-error {
   position: absolute;
   bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 11px;
+  font-size: 12px;
   color: #ff6b6b;
   background: rgba(0, 0, 0, 0.85);
-  padding: 5px 14px;
-  border-radius: 8px;
+  padding: 6px 16px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 107, 107, 0.2);
 }
 
 /* ─── Sidebar ─── */
 .sidebar {
-  width: 285px;
+  width: 380px;
   flex-shrink: 0;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
   padding: 0 2px 2px 0;
 }
 
@@ -256,30 +268,40 @@
   border-radius: 3px;
 }
 
-/* ─── Settings Card ─── */
-.settings-card {
+/* ─── Unified Panel ─── */
+.panel {
   background: #141414;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
+  border-radius: 24px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.card-header {
+.panel-section {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.panel-section:last-child {
+  border-bottom: none;
+}
+
+.section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px 0;
+  padding: 16px 18px 0;
 }
 
-.card-title {
-  font-size: 10px;
+.section-title {
+  font-size: 12px;
   font-weight: 600;
   color: #666;
   text-transform: uppercase;
   letter-spacing: 1.5px;
 }
 
-.card-reset {
+.section-reset {
   background: none;
   border: none;
   color: #444;
@@ -290,16 +312,16 @@
   transition: color 0.12s, background 0.12s;
 }
 
-.card-reset:hover {
+.section-reset:hover {
   color: #999;
   background: rgba(255, 255, 255, 0.05);
 }
 
-.card-body {
-  padding: 10px 14px 14px;
+.section-body {
+  padding: 12px 18px 18px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 /* ─── Controls ─── */
@@ -310,7 +332,7 @@
 }
 
 .control-label {
-  font-size: 10px;
+  font-size: 12px;
   color: #666;
   font-weight: 500;
 }
@@ -330,9 +352,9 @@
   background: none;
   border: none;
   color: #666;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
-  padding: 5px 8px;
+  padding: 7px 12px;
   border-radius: 999px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
@@ -356,16 +378,16 @@
 }
 
 .slider-label {
-  font-size: 10px;
+  font-size: 13px;
   color: #777;
-  width: 72px;
+  width: 80px;
   flex-shrink: 0;
 }
 
 .slider-value {
-  font-size: 11px;
+  font-size: 14px;
   color: #EAEAEA;
-  width: 36px;
+  width: 44px;
   text-align: right;
   flex-shrink: 0;
   font-variant-numeric: tabular-nums;
@@ -375,9 +397,9 @@
 .slider-track {
   flex: 1;
   position: relative;
-  height: 6px;
+  height: 14px;
   background: #1e1e1e;
-  border-radius: 3px;
+  border-radius: 7px;
   cursor: pointer;
 }
 
@@ -387,7 +409,7 @@
   left: 0;
   height: 100%;
   background: #555;
-  border-radius: 3px;
+  border-radius: 7px;
   pointer-events: none;
   transition: width 0.05s;
 }
@@ -410,24 +432,24 @@
 .slider-input::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
-  background: #ccc;
-  border-radius: 50%;
+  width: 22px;
+  height: 18px;
+  background: #bbb;
+  border-radius: 9px;
   border: none;
   cursor: pointer;
   transition: background 0.1s;
 }
 
 .slider-input::-webkit-slider-thumb:hover {
-  background: #fff;
+  background: #eee;
 }
 
 .slider-input::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  background: #ccc;
-  border-radius: 50%;
+  width: 22px;
+  height: 18px;
+  background: #bbb;
+  border-radius: 9px;
   border: none;
   cursor: pointer;
 }
@@ -453,11 +475,11 @@
   background: #1e1e1e;
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: #ccc;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
-  padding: 6px 8px;
+  padding: 9px 12px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 12px;
   transition: border-color 0.12s;
   appearance: none;
   -webkit-appearance: none;
@@ -490,11 +512,11 @@
   background: #1e1e1e;
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: #999;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
-  padding: 6px 8px;
+  padding: 8px 12px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 12px;
   text-align: center;
   transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
@@ -526,11 +548,11 @@
   background: #fff;
   border: none;
   color: #0A0A0A;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
-  padding: 10px 12px;
+  padding: 12px 16px;
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: 12px;
   text-align: center;
   transition: background 0.12s, opacity 0.12s;
 }
@@ -553,12 +575,12 @@
   background: #1e1e1e;
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: #888;
-  font-size: 13px;
-  width: 28px;
-  height: 28px;
+  font-size: 16px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -604,20 +626,20 @@
 }
 
 /* ─── Responsive ─── */
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .workspace {
     padding: 8px;
     gap: 8px;
   }
   .sidebar {
-    width: 250px;
+    width: 320px;
   }
   .stage {
     padding: 16px;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .workspace {
     flex-direction: column-reverse;
     padding: 6px;
@@ -626,53 +648,49 @@
   .sidebar {
     width: 100%;
     max-height: 45vh;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
     overflow-y: auto;
-    padding-bottom: 6px;
   }
-  .settings-card {
-    flex: 1;
-    min-width: 180px;
+  .panel {
+    border-radius: 16px;
   }
   .stage {
     padding: 12px;
-    border-radius: 12px;
+    border-radius: 16px;
   }
   .topbar {
     height: 40px;
     padding: 0 10px;
   }
   .logo {
-    font-size: 12px;
+    font-size: 14px;
   }
   .pill-tabs .tab {
-    font-size: 11px;
-    padding: 4px 14px;
+    font-size: 12px;
+    padding: 5px 16px;
   }
   .topbar-btn {
-    font-size: 10px;
-    padding: 4px 8px;
+    font-size: 11px;
+    padding: 5px 10px;
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 480px) {
   .sidebar {
     max-height: 50vh;
   }
   .stage {
     padding: 8px;
+    border-radius: 12px;
   }
   .topbar {
     padding: 0 6px;
   }
   .topbar-btn {
-    font-size: 9px;
-    padding: 3px 6px;
+    font-size: 10px;
+    padding: 4px 8px;
   }
   .pill-tabs .tab {
-    font-size: 10px;
-    padding: 3px 10px;
+    font-size: 11px;
+    padding: 4px 12px;
   }
 }

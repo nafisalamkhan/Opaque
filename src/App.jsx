@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { useAsciiRender, getCharWidth } from './hooks/useAsciiRender';
+import { useAsciiRender, getCharWidth, DENSITY_PROFILES } from './hooks/useAsciiRender';
 import './App.css';
 
 const BLEND_MODES = [
@@ -124,18 +124,6 @@ function SegmentedControl({ options, value, onChange, width }) {
           {o.label}
         </button>
       ))}
-    </div>
-  );
-}
-
-function SettingsCard({ title, onReset, children }) {
-  return (
-    <div className="settings-card">
-      <div className="card-header">
-        <span className="card-title">:: {title}</span>
-        <button className="card-reset" onClick={onReset} title="Reset section">↺</button>
-      </div>
-      <div className="card-body">{children}</div>
     </div>
   );
 }
@@ -405,123 +393,128 @@ body{${bgStyle}color:#00FF41;font:16px VT323,'Courier New',monospace;white-space
         </main>
 
         <aside className="sidebar">
-          <SettingsCard title="Sampling & Characters" onReset={() => {
-            setDensityProfile('standard'); setDensityBias(1); setHeightScale(1); setPixelate(0);
-          }}>
-            <div className="control-group">
-              <label className="control-label">Character Ramp</label>
-              <SegmentedControl
-                options={[
-                  { label: 'Standard', value: 'standard' },
-                  { label: 'Blocks', value: 'blocks' },
-                  { label: 'Detailed', value: 'detailed' },
-                  { label: 'Minimal', value: 'minimal' },
-                ]}
-                value={densityProfile}
-                onChange={setDensityProfile}
-              />
-            </div>
-            <div className="control-group">
-              <label className="control-label">Density Bias</label>
-              <div className="bias-row">
-                <div className="slider-track">
-                  <div className="slider-fill" style={{ width: `${((densityBias - 0.1) / (3 - 0.1)) * 100}%` }} />
-                  <input
-                    type="range" className="slider-input"
-                    min={0.1} max={3} step={0.05}
-                    value={densityBias}
-                    onChange={e => setDensityBias(Number(e.target.value))}
-                  />
+          <div className="panel">
+            <div className="panel-section">
+              <div className="section-header">
+                <span className="section-title">:: Sampling & Characters</span>
+                <button className="section-reset" onClick={() => {
+                  setDensityProfile('standard'); setDensityBias(1); setHeightScale(1); setPixelate(0);
+                }} title="Reset section">↺</button>
+              </div>
+              <div className="section-body">
+                <div className="control-group">
+                  <label className="control-label">Character Ramp</label>
+                  <SegmentedControl options={[
+                    { label: 'Standard', value: 'standard' },
+                    { label: 'Blocks', value: 'blocks' },
+                    { label: 'Detailed', value: 'detailed' },
+                    { label: 'Minimal', value: 'minimal' },
+                  ]} value={densityProfile} onChange={setDensityProfile} />
                 </div>
-                <span className="slider-value">{densityBias.toFixed(2)}</span>
-                <button className="btn-sm" onClick={handleRandomBias} title="Randomize">🎲</button>
+                <div className="ramp-display">{DENSITY_PROFILES[densityProfile]}</div>
+                <div className="control-group">
+                  <label className="control-label">Density Bias</label>
+                  <div className="bias-row">
+                    <div className="slider-track">
+                      <div className="slider-fill" style={{ width: `${((densityBias - 0.1) / (3 - 0.1)) * 100}%` }} />
+                      <input type="range" className="slider-input" min={0.1} max={3} step={0.05}
+                        value={densityBias} onChange={e => setDensityBias(Number(e.target.value))} />
+                    </div>
+                    <span className="slider-value">{densityBias.toFixed(2)}</span>
+                    <button className="btn-sm" onClick={handleRandomBias} title="Randomize">🎲</button>
+                  </div>
+                </div>
+                <Slider label="Width" value={width} min={40} max={350} step={1} onChange={setWidth} />
+                <Slider label="Height Scale" value={heightScale} min={0.25} max={2.5} step={0.05} onChange={setHeightScale} />
+                <Slider label="Pixelate" value={pixelate} min={0} max={1} step={0.05} onChange={setPixelate} />
               </div>
             </div>
-            <Slider label="Width" value={width} min={40} max={350} step={1} onChange={setWidth} />
-            <Slider label="Height Scale" value={heightScale} min={0.25} max={2.5} step={0.05} onChange={setHeightScale} />
-            <Slider label="Pixelate" value={pixelate} min={0} max={1} step={0.05} onChange={setPixelate} />
-          </SettingsCard>
 
-          <SettingsCard title="Tone" onReset={() => {
-            setBrightness(0); setContrast(0); setGamma(1);
-          }}>
-            <Slider label="Brightness" value={brightness} min={-1} max={1} step={0.05} onChange={setBrightness} />
-            <Slider label="Contrast" value={contrast} min={-1} max={1} step={0.05} onChange={setContrast} />
-            <Slider label="Gamma" value={gamma} min={0.1} max={3} step={0.05} onChange={setGamma} />
-          </SettingsCard>
+            <div className="panel-section">
+              <div className="section-header">
+                <span className="section-title">:: Tone</span>
+                <button className="section-reset" onClick={() => {
+                  setBrightness(0); setContrast(0); setGamma(1);
+                }} title="Reset section">↺</button>
+              </div>
+              <div className="section-body">
+                <Slider label="Brightness" value={brightness} min={-1} max={1} step={0.05} onChange={setBrightness} />
+                <Slider label="Contrast" value={contrast} min={-1} max={1} step={0.05} onChange={setContrast} />
+                <Slider label="Gamma" value={gamma} min={0.1} max={3} step={0.05} onChange={setGamma} />
+              </div>
+            </div>
 
-          <SettingsCard title="Colors & Compositing" onReset={() => {
-            setMixMode('mono'); setBackground('solid'); setBlendMode('normal');
-          }}>
-            <div className="control-group">
-              <label className="control-label">Mix Mode</label>
-              <SegmentedControl
-                options={[
-                  { label: 'Mono', value: 'mono' },
-                  { label: 'Multi', value: 'multi' },
-                  { label: 'Original', value: 'original' },
-                ]}
-                value={mixMode}
-                onChange={setMixMode}
-              />
+            <div className="panel-section">
+              <div className="section-header">
+                <span className="section-title">:: Colors & Compositing</span>
+                <button className="section-reset" onClick={() => {
+                  setMixMode('mono'); setBackground('solid'); setBlendMode('normal');
+                }} title="Reset section">↺</button>
+              </div>
+              <div className="section-body">
+                <div className="control-group">
+                  <label className="control-label">Mix Mode</label>
+                  <SegmentedControl options={[
+                    { label: 'Mono', value: 'mono' },
+                    { label: 'Multi', value: 'multi' },
+                    { label: 'Original', value: 'original' },
+                  ]} value={mixMode} onChange={setMixMode} />
+                </div>
+                <div className="control-group">
+                  <label className="control-label">Background</label>
+                  <SegmentedControl options={[
+                    { label: 'Solid', value: 'solid' },
+                    { label: 'Transparent', value: 'transparent' },
+                  ]} value={background} onChange={setBackground} />
+                </div>
+                <div className="control-group">
+                  <label className="control-label">Blend Mode</label>
+                  <select className="select-blend" value={blendMode} onChange={e => setBlendMode(e.target.value)}>
+                    {BLEND_MODES.map(m => <option key={m} value={m.toLowerCase()}>{m}</option>)}
+                  </select>
+                </div>
+              </div>
             </div>
-            <div className="control-group">
-              <label className="control-label">Background</label>
-              <SegmentedControl
-                options={[
-                  { label: 'Solid', value: 'solid' },
-                  { label: 'Transparent', value: 'transparent' },
-                ]}
-                value={background}
-                onChange={setBackground}
-              />
-            </div>
-            <div className="control-group">
-              <label className="control-label">Blend Mode</label>
-              <select className="select-blend" value={blendMode} onChange={e => setBlendMode(e.target.value)}>
-                {BLEND_MODES.map(m => (
-                  <option key={m} value={m.toLowerCase()}>{m}</option>
-                ))}
-              </select>
-            </div>
-          </SettingsCard>
 
-          <SettingsCard title="Export" onReset={() => setExportScale(1)}>
-            <div className="control-group">
-              <label className="control-label">Scale</label>
-              <SegmentedControl
-                options={[1, 2, 3, 4, 5, 6].map(s => ({ label: `${s}x`, value: s }))}
-                value={exportScale}
-                onChange={setExportScale}
-              />
-            </div>
-            <div className="btn-row">
-              <button className="btn-secondary" onClick={handleCopy} disabled={!hasContent}>Copy Text</button>
-              <button className="btn-secondary" onClick={handleAddToCompose} disabled={!hasContent}>
-                Compose{compositions.length > 0 ? ` (${compositions.length})` : ''}
-              </button>
-            </div>
-            <div className="control-group">
-              <label className="control-label">Formats</label>
-              <div className="btn-grid">
-                {[
-                  { label: 'PNG', fn: handleSavePNG },
-                  { label: 'SVG', fn: handleSaveSVG },
-                  { label: 'TXT', fn: handleSaveTXT },
-                  { label: 'HTML', fn: handleSaveHTML },
-                  { label: 'JSON', fn: handleSaveJSON },
-                  { label: 'ANSI', fn: handleSaveANSI },
-                ].map(f => (
-                  <button key={f.label} className="btn-secondary" onClick={f.fn} disabled={!hasContent}>
-                    {f.label}
+            <div className="panel-section">
+              <div className="section-header">
+                <span className="section-title">:: Export</span>
+                <button className="section-reset" onClick={() => setExportScale(1)} title="Reset section">↺</button>
+              </div>
+              <div className="section-body">
+                <div className="control-group">
+                  <label className="control-label">Scale</label>
+                  <SegmentedControl
+                    options={[1, 2, 3, 4, 5, 6].map(s => ({ label: `${s}x`, value: s }))}
+                    value={exportScale} onChange={setExportScale} />
+                </div>
+                <div className="btn-row">
+                  <button className="btn-secondary" onClick={handleCopy} disabled={!hasContent}>Copy Text</button>
+                  <button className="btn-secondary" onClick={handleAddToCompose} disabled={!hasContent}>
+                    Compose{compositions.length > 0 ? ` (${compositions.length})` : ''}
                   </button>
-                ))}
+                </div>
+                <div className="control-group">
+                  <label className="control-label">Formats</label>
+                  <div className="btn-grid">
+                    {[
+                      { label: 'PNG', fn: handleSavePNG },
+                      { label: 'SVG', fn: handleSaveSVG },
+                      { label: 'TXT', fn: handleSaveTXT },
+                      { label: 'HTML', fn: handleSaveHTML },
+                      { label: 'JSON', fn: handleSaveJSON },
+                      { label: 'ANSI', fn: handleSaveANSI },
+                    ].map(f => (
+                      <button key={f.label} className="btn-secondary" onClick={f.fn} disabled={!hasContent}>{f.label}</button>
+                    ))}
+                  </div>
+                </div>
+                <button className="btn-primary" onClick={handleDownloadAll} disabled={!hasContent}>
+                  Download All
+                </button>
               </div>
             </div>
-            <button className="btn-primary" onClick={handleDownloadAll} disabled={!hasContent}>
-              Download All
-            </button>
-          </SettingsCard>
+          </div>
         </aside>
 
         <video ref={videoRef} className="hidden" playsInline muted />
