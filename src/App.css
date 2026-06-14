@@ -37,36 +37,6 @@
   text-transform: uppercase;
 }
 
-/* ─── Pill Tabs (Segmented Control) ─── */
-.pill-tabs {
-  display: flex;
-  background: #141414;
-  border-radius: 999px;
-  padding: 3px;
-  gap: 2px;
-}
-
-.pill-tabs .tab {
-  background: none;
-  border: none;
-  color: #777;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 24px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.pill-tabs .tab.active {
-  background: #EAEAEA;
-  color: #0A0A0A;
-}
-
-.pill-tabs .tab:hover:not(.active) {
-  color: #EAEAEA;
-}
-
 /* ─── Topbar Actions ─── */
 .topbar-actions {
   display: flex;
@@ -216,7 +186,8 @@
 }
 
 /* ─── Ramp String Display ─── */
-.ramp-display {
+.ramp-input {
+  width: 100%;
   background: #080808;
   padding: 12px 16px;
   border-radius: 12px;
@@ -225,9 +196,11 @@
   font-size: 14px;
   color: #EAEAEA;
   letter-spacing: 2px;
-  user-select: all;
-  overflow-x: auto;
-  white-space: nowrap;
+  outline: none;
+}
+
+.ramp-input:focus {
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 /* ─── Camera Error ─── */
@@ -590,26 +563,6 @@
   color: #EAEAEA;
 }
 
-/* ─── Compose Tab ─── */
-.empty-compose {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: #777;
-  text-align: center;
-}
-
-.empty-icon {
-  font-size: 32px;
-}
-
-.empty-hint {
-  font-size: 11px;
-  color: #777;
-}
-
 /* ─── Hidden ─── */
 .hidden {
   position: absolute;
@@ -661,10 +614,6 @@
   .logo {
     font-size: 14px;
   }
-  .pill-tabs .tab {
-    font-size: 12px;
-    padding: 5px 16px;
-  }
   .topbar-btn {
     font-size: 11px;
     padding: 5px 10px;
@@ -685,9 +634,5 @@
   .topbar-btn {
     font-size: 10px;
     padding: 4px 8px;
-  }
-  .pill-tabs .tab {
-    font-size: 11px;
-    padding: 4px 12px;
   }
 }

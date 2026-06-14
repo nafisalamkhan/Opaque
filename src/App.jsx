@@ -129,9 +129,9 @@ function SegmentedControl({ options, value, onChange, width }) {
 }
 
 function App() {
-  const [activeTab, setActiveTab] = useState('generate');
   const [mixMode, setMixMode] = useState('mono');
   const [densityProfile, setDensityProfile] = useState('standard');
+  const [densityRamp, setDensityRamp] = useState(DENSITY_PROFILES.standard);
   const [densityBias, setDensityBias] = useState(1);
   const [width, setWidth] = useState(120);
   const [heightScale, setHeightScale] = useState(1);
@@ -147,7 +147,6 @@ function App() {
   const [cameraError, setCameraError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const [exportScale, setExportScale] = useState(1);
-  const [compositions, setCompositions] = useState([]);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -156,7 +155,7 @@ function App() {
 
   const { text, colors } = useAsciiRender({
     videoRef, canvasRef, width, brightness, contrast, gamma, invertL,
-    cameraActive, imageSource: uploadedImage, densityProfile, densityBias,
+    cameraActive, imageSource: uploadedImage, densityRamp, densityBias,
     heightScale, pixelate, mixMode, background, blendMode,
   });
 
@@ -169,6 +168,11 @@ function App() {
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+  }, []);
+
+  const handleDensityProfile = useCallback((profile) => {
+    setDensityProfile(profile);
+    setDensityRamp(DENSITY_PROFILES[profile] || DENSITY_PROFILES.standard);
   }, []);
 
   const handleFileChange = useCallback((e) => {
@@ -230,7 +234,8 @@ function App() {
 
   const handleResetAll = useCallback(() => {
     setBrightness(0); setContrast(0); setGamma(1); setPixelate(0);
-    setInvertL(false); setDensityProfile('standard'); setDensityBias(1);
+    setInvertL(false); setDensityProfile('standard'); setDensityRamp(DENSITY_PROFILES.standard);
+    setDensityBias(1);
     setHeightScale(1); setMixMode('mono'); setBackground('solid');
     setBlendMode('normal');
   }, []);
@@ -238,10 +243,6 @@ function App() {
   const handleRandomBias = useCallback(() => {
     setDensityBias(+(Math.random() * 2.8 + 0.2).toFixed(2));
   }, []);
-
-  const handleAddToCompose = useCallback(() => {
-    setCompositions(prev => [...prev, { text, colors, mixMode }]);
-  }, [text, colors, mixMode]);
 
   const EXPORT_FONTSIZE = 32;
 
@@ -316,33 +317,6 @@ body{${bgStyle}color:#EAEAEA;font:16px VT323,'Courier New',monospace;white-space
   const lines = text.split('\n');
   const trueColorHtml = (mixMode !== 'mono') && hasContent ? renderTrueColorHtml(lines, colors) : '';
 
-  if (activeTab === 'compose') {
-    return (
-      <div className="app">
-        <header className="topbar">
-          <div className="logo">Opaque</div>
-          <div className="pill-tabs">
-            <button className="tab" onClick={() => setActiveTab('generate')}>Generate</button>
-            <button className="tab active" onClick={() => setActiveTab('compose')}>Compose</button>
-          </div>
-          <div className="topbar-actions" />
-        </header>
-        <div className="workspace">
-          <div className="stage">
-            <div className="empty-compose">
-              <span className="empty-icon">📋</span>
-              <p>{compositions.length} composition{compositions.length !== 1 ? 's' : ''}</p>
-              {compositions.length > 0 && (
-                <button className="btn-secondary" onClick={() => setCompositions([])}>Clear All</button>
-              )}
-              {compositions.length === 0 && <p className="empty-hint">Add compositions from the Generate tab</p>}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       className={`app ${dragOver ? 'drag-over' : ''}`}
@@ -350,10 +324,6 @@ body{${bgStyle}color:#EAEAEA;font:16px VT323,'Courier New',monospace;white-space
     >
       <header className="topbar">
         <div className="logo">Opaque</div>
-        <div className="pill-tabs">
-          <button className="tab active" onClick={() => setActiveTab('generate')}>Generate</button>
-          <button className="tab" onClick={() => setActiveTab('compose')}>Compose</button>
-        </div>
         <div className="topbar-actions">
           <button className={`topbar-btn ${cameraActive ? 'active' : ''}`} onClick={handleCameraToggle} title="Toggle camera">
             {cameraActive ? '■' : '◉'}
@@ -398,7 +368,7 @@ body{${bgStyle}color:#EAEAEA;font:16px VT323,'Courier New',monospace;white-space
               <div className="section-header">
                 <span className="section-title">:: Sampling & Characters</span>
                 <button className="section-reset" onClick={() => {
-                  setDensityProfile('standard'); setDensityBias(1); setHeightScale(1); setPixelate(0);
+                  handleDensityProfile('standard'); setDensityBias(1); setHeightScale(1); setPixelate(0);
                 }} title="Reset section">↺</button>
               </div>
               <div className="section-body">
@@ -409,9 +379,9 @@ body{${bgStyle}color:#EAEAEA;font:16px VT323,'Courier New',monospace;white-space
                     { label: 'Blocks', value: 'blocks' },
                     { label: 'Detailed', value: 'detailed' },
                     { label: 'Minimal', value: 'minimal' },
-                  ]} value={densityProfile} onChange={setDensityProfile} />
+                  ]} value={densityProfile} onChange={handleDensityProfile} />
                 </div>
-                <div className="ramp-display">{DENSITY_PROFILES[densityProfile]}</div>
+                <input type="text" className="ramp-input" value={densityRamp} onChange={e => setDensityRamp(e.target.value)} />
                 <div className="control-group">
                   <label className="control-label">Density Bias</label>
                   <div className="bias-row">
@@ -490,9 +460,6 @@ body{${bgStyle}color:#EAEAEA;font:16px VT323,'Courier New',monospace;white-space
                 </div>
                 <div className="btn-row">
                   <button className="btn-secondary" onClick={handleCopy} disabled={!hasContent}>Copy Text</button>
-                  <button className="btn-secondary" onClick={handleAddToCompose} disabled={!hasContent}>
-                    Compose{compositions.length > 0 ? ` (${compositions.length})` : ''}
-                  </button>
                 </div>
                 <div className="control-group">
                   <label className="control-label">Formats</label>

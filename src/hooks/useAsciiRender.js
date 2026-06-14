@@ -77,7 +77,7 @@ export function useAsciiRender({
   invertL = false,
   cameraActive = false,
   imageSource = null,
-  densityProfile = 'standard',
+  densityRamp = '@%#*+=-:. ',
   densityBias = 1,
   heightScale = 1,
   pixelate = 0,
@@ -128,7 +128,7 @@ export function useAsciiRender({
     const imageData = ctx.getImageData(0, 0, cols, rows);
     const pixels = imageData.data;
 
-    const density = DENSITY_PROFILES[densityProfile] || DENSITY_PROFILES.standard;
+    const density = densityRamp || DENSITY_PROFILES.standard;
 
     let text = '';
     const colors = [];
@@ -187,7 +187,7 @@ export function useAsciiRender({
     }
 
     setResult({ text, colors });
-  }, [width, brightness, contrast, gamma, invertL, canvasRef, densityProfile, densityBias, heightScale, pixelate, mixMode, background, blendMode]);
+  }, [width, brightness, contrast, gamma, invertL, canvasRef, densityRamp, densityBias, heightScale, pixelate, mixMode, background, blendMode]);
 
   useEffect(() => {
     if (imageSource) {
