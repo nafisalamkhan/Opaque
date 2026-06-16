@@ -1,24 +1,27 @@
-# Opaque ▓▒░
+# Opaque
 
-A fully client-side web app that converts images and live camera feeds into real-time ASCII art with retro terminal aesthetics.
-
+A premium client-side ASCII art generator. Converts images and live camera feeds into real-time ASCII art with a polished dark/light theme UI.
 
 ## Features
 
 - **Image Upload** — Drag-and-drop or file picker (JPEG, PNG, WebP)
-- **Live Camera** — Real-time webcam processing via `getUserMedia` + `requestAnimationFrame`
-- **ASCII Engine** — Luminance formula `(r·0.299)+(g·0.587)+(b·0.114)` mapped to a 32-character density string; aspect-ratio corrected for proper proportions
-- **Resolution Control** — Adjustable column width (80–350)
-- **3 Color Modes** — Classic Green (#00FF41 terminal glow), Monochrome (white on black), True Color (per-character pixel-accurate RGB)
-- **Brightness / Contrast** — Real-time adjustment with per-pixel processing
-- **High-Res Export** — PNG download rendered at 32px font size for ultra-resolution output
-- **Copy to Clipboard** — Raw ASCII text export
+- **Live Camera** — Real-time webcam via `getUserMedia` + `requestAnimationFrame`
+- **ASCII Engine** — Luminance mapping `(r·0.299)+(g·0.587)+(b·0.114)` with gamma/brightness/contrast and per-pixel color extraction
+- **4 Density Profiles** — Standard, Blocks, Detailed, Minimal with editable character ramp and bias control
+- **3 Mix Modes** — Phosphor (`#39FF14` on black), Mono (theme-aware black/white), Original (per-character pixel-accurate RGB)
+- **Adjustable Sampling** — Column width (40–350), height scale, pixelate, bias
+- **Light/Dark Theme** — Toggle with 36+ CSS custom properties; light mode uses soft dark grays
+- **Multi-Format Export** — PNG (1x–6x scale with WYSIWYG rendering), SVG, TXT, HTML, JSON, ANSI, and Download All
+- **Copy to Clipboard** — With glassmorphic toast notification
+- **Premium UI** — Pill sliders, segmented controls, glassmorphic toasts, phosphor-accented dark mode, header utility buttons
+- **Fully Responsive** — 1100px, 768px, 480px breakpoints
 
 ## Tech Stack
 
 - **React** (Vite)
-- **Canvas API** — pixel extraction and image processing
+- **Canvas API** — pixel extraction, character measurement, PNG rendering
 - **WebRTC** — `navigator.mediaDevices.getUserMedia` for camera input
 - **VT323** — monospace retro terminal font from Google Fonts
+- **Inter** — UI sans-serif font
 
-No backend. 100% client-side.
+100% client-side. No backend.
