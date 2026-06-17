@@ -135,6 +135,17 @@ function InvertIcon() {
   );
 }
 
+function ShuffleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 2v6h-6"/>
+      <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+      <path d="M3 22v-6h6"/>
+      <path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+    </svg>
+  );
+}
+
 function HeaderButton({ icon, label, active, onClick, title }) {
   return (
     <button className={`topbar-btn ${active ? 'active' : ''}`} onClick={onClick} title={title}>
@@ -550,7 +561,7 @@ body{background:${bg};color:${bodyColor};font:16px VT323,'Courier New',monospace
                         value={densityBias} onChange={e => setDensityBias(Number(e.target.value))} />
                     </div>
                     <span className="slider-value">{densityBias.toFixed(2)}</span>
-                    <button className="btn-sm" onClick={handleRandomBias} title="Randomize">🎲</button>
+                    <button className="btn-sm" onClick={handleRandomBias} title="Randomize"><ShuffleIcon /></button>
                   </div>
                 </div>
                 <Slider label="Width" value={width} min={40} max={350} step={1} onChange={setWidth} />

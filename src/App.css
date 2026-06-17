@@ -703,25 +703,37 @@
 }
 
 .btn-sm {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
+  background: rgba(20, 20, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-muted);
-  font-size: 16px;
   width: 36px;
   height: 36px;
   padding: 0;
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.12s, color 0.12s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 
 .btn-sm:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.theme-light .btn-sm {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #6B7A6F;
+}
+
+.theme-light .btn-sm:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #0A2510;
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 /* ─── Hidden ─── */
