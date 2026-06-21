@@ -274,6 +274,7 @@ function App() {
 
   const loadImage = useCallback((file) => {
     if (!file || !file.type.match(/image\/(jpeg|png|webp)/)) return;
+    if (file.size > 50 * 1024 * 1024) return;
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
