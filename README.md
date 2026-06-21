@@ -2,6 +2,8 @@
 
 A premium client-side ASCII art generator with a retro terminal aesthetic and polished dark/light theme UI.
 
+[![Vercel](https://img.shields.io/badge/deployed%20on-Vercel-000?style=flat&logo=vercel)](https://opaque-zeta.vercel.app/)
+
 ## Features
 
 - **Image Upload** — Drag-and-drop or file picker (JPEG, PNG, WebP)
